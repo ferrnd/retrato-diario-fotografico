@@ -27,6 +27,7 @@ export default function CameraScreen() {
   const [lado, setLado] = useState("back");
   const [ocupado, setOcupado] = useState(false);
   const [parado, setParado] = useState(true);
+  const [flashLigado, setFlashLigado] = useState(false);
   const camera = useRef(null);
   const flash = useRef(new Animated.Value(0)).current;
   const giro = useRef(new Animated.Value(0)).current;
@@ -195,7 +196,12 @@ export default function CameraScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.cameraBox}>
-          <CameraView ref={camera} facing={lado} style={StyleSheet.absoluteFill} />
+          <CameraView
+            ref={camera}
+            facing={lado}
+            flash={flashLigado ? "on" : "off"}
+            style={StyleSheet.absoluteFill}
+          />
 
           <Animated.View
             pointerEvents="none"
@@ -231,6 +237,17 @@ export default function CameraScreen() {
               {parado ? "Celular parado" : "Segure firme"}
             </Text>
           </View>
+
+          <BotaoAnimado
+            style={[styles.botaoVidro, styles.botaoFlash]}
+            onPress={() => setFlashLigado(!flashLigado)}
+          >
+            <Ionicons
+              name={flashLigado ? "flash" : "flash-off"}
+              size={22}
+              color={flashLigado ? "#fbbf24" : "#ffffff"}
+            />
+          </BotaoAnimado>
 
           <View style={styles.controles}>
             {ultimaFoto ? (
@@ -383,6 +400,11 @@ const styles = StyleSheet.create({
   },
   obturadorOcupado: {
     opacity: 0.5,
+  },
+  botaoFlash: {
+    position: "absolute",
+    top: 16,
+    right: 16,
   },
   botaoVidro: {
     width: 52,

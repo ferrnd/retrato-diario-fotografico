@@ -204,8 +204,6 @@ export default function CameraScreen() {
       adicionarFoto(
         {
           uri: resultado.uri,
-          largura: resultado.width,
-          altura: resultado.height,
           tamanho,
         },
         local

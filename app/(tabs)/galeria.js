@@ -37,12 +37,6 @@ function textoTamanho(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function textoResolucao(item) {
-  if (!item.largura || !item.altura) return "Desconhecida";
-  const megapixels = (item.largura * item.altura) / 1000000;
-  return `${item.largura} × ${item.altura} (${megapixels.toFixed(1)} MP)`;
-}
-
 function textoCoordenadas(item) {
   if (!item.local) return "Sem localização";
   return `${item.local.latitude.toFixed(6)}, ${item.local.longitude.toFixed(6)}`;
@@ -455,7 +449,6 @@ export default function GaleriaScreen() {
                 <LinhaDetalhe icone="calendar-outline" titulo="Data e hora" valor={selecionada.data} />
                 <LinhaDetalhe icone="location-outline" titulo="Local" valor={textoLocal(selecionada)} />
                 <LinhaDetalhe icone="navigate-outline" titulo="Coordenadas" valor={textoCoordenadas(selecionada)} />
-                <LinhaDetalhe icone="resize-outline" titulo="Resolução" valor={textoResolucao(selecionada)} />
                 <LinhaDetalhe icone="document-outline" titulo="Tamanho do arquivo" valor={textoTamanho(selecionada.tamanho)} />
               </View>
             </Animated.View>

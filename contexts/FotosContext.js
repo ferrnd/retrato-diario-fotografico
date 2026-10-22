@@ -6,13 +6,11 @@ const FotosContext = createContext();
 export function FotosProvider({ children }) {
   const [fotos, setFotos] = useState([]);
 
-  function adicionarFoto({ uri, largura, altura, tamanho }, local) {
+  function adicionarFoto({ uri, tamanho }, local) {
     setFotos((atuais) => [
       // foto nova vai pro começo da lista
       {
         uri,
-        largura,
-        altura,
         tamanho,
         local,
         data: new Date().toLocaleString("pt-BR"),

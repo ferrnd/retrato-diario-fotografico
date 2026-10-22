@@ -9,6 +9,7 @@ import {
   Animated,
   Image,
   Linking,
+  PanResponder,
   Pressable,
   StyleSheet,
   Text,
@@ -28,6 +29,7 @@ export default function CameraScreen() {
   const [ocupado, setOcupado] = useState(false);
   const [parado, setParado] = useState(true);
   const [flashLigado, setFlashLigado] = useState(false);
+  const [zoom, setZoom] = useState(0);
   const camera = useRef(null);
   const flash = useRef(new Animated.Value(0)).current;
   const giro = useRef(new Animated.Value(0)).current;
@@ -36,6 +38,37 @@ export default function CameraScreen() {
   const ultimaFoto = fotos[0];
 
   const somObturador = useAudioPlayer(require("../../assets/obturador.mp3"));
+
+  // zoom com pinça: compara a distância entre os dois dedos
+  const zoomAtual = useRef(0);
+  const pinca = useRef({ distancia: 0, zoom: 0 });
+  const gestoZoom = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: (e) => e.nativeEvent.touches.length === 2,
+      onMoveShouldSetPanResponder: (e) => e.nativeEvent.touches.length === 2,
+      onPanResponderMove: (e) => {
+        const toques = e.nativeEvent.touches;
+        if (toques.length !== 2) return;
+        const distancia = Math.hypot(
+          toques[0].pageX - toques[1].pageX,
+          toques[0].pageY - toques[1].pageY
+        );
+        if (!pinca.current.distancia) {
+          pinca.current = { distancia, zoom: zoomAtual.current };
+          return;
+        }
+        const novo = pinca.current.zoom + (distancia - pinca.current.distancia) / 400;
+        zoomAtual.current = Math.min(1, Math.max(0, novo));
+        setZoom(zoomAtual.current);
+      },
+      onPanResponderRelease: () => {
+        pinca.current.distancia = 0;
+      },
+      onPanResponderTerminate: () => {
+        pinca.current.distancia = 0;
+      },
+    })
+  ).current;
 
   useEffect(() => {
     let anterior = null;
@@ -182,6 +215,11 @@ export default function CameraScreen() {
     }
   }
 
+  function voltarZoom() {
+    zoomAtual.current = 0;
+    setZoom(0);
+  }
+
   function virarCamera() {
     setLado(lado === "back" ? "front" : "back");
     voltas.current += 1;
@@ -196,12 +234,15 @@ export default function CameraScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.cameraBox}>
-          <CameraView
-            ref={camera}
-            facing={lado}
-            flash={flashLigado ? "on" : "off"}
-            style={StyleSheet.absoluteFill}
-          />
+          <View style={StyleSheet.absoluteFill} {...gestoZoom.panHandlers}>
+            <CameraView
+              ref={camera}
+              facing={lado}
+              flash={flashLigado ? "on" : "off"}
+              zoom={zoom}
+              style={StyleSheet.absoluteFill}
+            />
+          </View>
 
           <Animated.View
             pointerEvents="none"
@@ -248,6 +289,14 @@ export default function CameraScreen() {
               color={flashLigado ? "#fbbf24" : "#ffffff"}
             />
           </BotaoAnimado>
+
+          {zoom > 0 && (
+            <Pressable style={styles.zoomChip} onPress={voltarZoom}>
+              <Text style={styles.chipTexto}>
+                Zoom {Math.round(zoom * 100)}% · tocar para voltar
+              </Text>
+            </Pressable>
+          )}
 
           <View style={styles.controles}>
             {ultimaFoto ? (
@@ -405,6 +454,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 16,
     right: 16,
+  },
+  zoomChip: {
+    position: "absolute",
+    alignSelf: "center",
+    bottom: 110,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(16, 37, 66, 0.7)",
   },
   botaoVidro: {
     width: 52,

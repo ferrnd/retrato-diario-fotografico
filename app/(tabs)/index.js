@@ -1,16 +1,70 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useAudioPlayer } from "expo-audio";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useRef, useState } from "react";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import * as Location from "expo-location";
+import { Accelerometer } from "expo-sensors";
+import { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Image,
+  Linking,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import BotaoAnimado from "../../components/BotaoAnimado";
 import { useFotos } from "../../contexts/FotosContext";
+
+const LIMITE_MOVIMENTO = 0.08;
 
 export default function CameraScreen() {
   const [permissao, pedirPermissao] = useCameraPermissions();
+  const [permLocal, pedirLocal] = Location.useForegroundPermissions();
   const [lado, setLado] = useState("back");
+  const [ocupado, setOcupado] = useState(false);
+  const [parado, setParado] = useState(true);
   const camera = useRef(null);
+  const flash = useRef(new Animated.Value(0)).current;
+  const giro = useRef(new Animated.Value(0)).current;
+  const voltas = useRef(0);
+  const { fotos, adicionarFoto } = useFotos();
+  const ultimaFoto = fotos[0];
 
-  const { adicionarFoto } = useFotos();
+  const somObturador = useAudioPlayer(require("../../assets/obturador.mp3"));
+
+  useEffect(() => {
+    let anterior = null; 
+    let suave = 0; 
+    let estado = true;
+
+    Accelerometer.setUpdateInterval(100);
+
+    const assinatura = Accelerometer.addListener(({ x, y, z }) => {
+      if (anterior) {
+
+        const mudanca =
+          Math.abs(x - anterior.x) +
+          Math.abs(y - anterior.y) +
+          Math.abs(z - anterior.z);
+
+        suave = suave * 0.6 + mudanca * 0.4;
+
+        const novoEstado = suave < LIMITE_MOVIMENTO;
+
+        if (novoEstado !== estado) {
+          estado = novoEstado;
+          setParado(novoEstado);
+        }
+      }
+      anterior = { x, y, z };
+    });
+
+    return () => assinatura.remove();
+  }, []);
+
+  const localNegado = permLocal && !permLocal.granted && !permLocal.canAskAgain;
 
   if (!permissao) {
     return <SafeAreaView style={styles.safeArea} />;
@@ -20,13 +74,16 @@ export default function CameraScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.centro}>
+          <View style={styles.iconeGrande}>
+            <Ionicons name="camera-outline" size={44} color="#0f62fe" />
+          </View>
           <Text style={styles.title}>Precisamos da câmera</Text>
           <Text style={styles.description}>
             {permissao.canAskAgain
               ? "O app usa a câmera para registrar os equipamentos do laboratório."
               : "A permissão foi negada. Ative a câmera nas configurações do celular."}
           </Text>
-          <Pressable
+          <BotaoAnimado
             style={styles.button}
             onPress={() =>
               permissao.canAskAgain ? pedirPermissao() : Linking.openSettings()
@@ -35,33 +92,150 @@ export default function CameraScreen() {
             <Text style={styles.buttonText}>
               {permissao.canAskAgain ? "Permitir câmera" : "Abrir configurações"}
             </Text>
-          </Pressable>
+          </BotaoAnimado>
         </View>
       </SafeAreaView>
     );
   }
 
   async function tirarFoto() {
-    const resultado = await camera.current.takePictureAsync();
-    adicionarFoto(resultado.uri);
+
+    if (ocupado || !parado) return;
+    setOcupado(true);
+
+    somObturador.seekTo(0);
+    somObturador.play();
+
+    Animated.sequence([
+      Animated.timing(flash, { toValue: 0.85, duration: 70, useNativeDriver: true }),
+      Animated.timing(flash, { toValue: 0, duration: 250, useNativeDriver: true }),
+    ]).start();
+
+    try {
+
+      const resultado = await camera.current.takePictureAsync({
+        shutterSound: false,
+      });
+
+      let local = null;
+      if (permLocal?.granted) {
+        try {
+          const posicao = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          const latitude = posicao.coords.latitude;
+          const longitude = posicao.coords.longitude;
+
+          let lugar = null;
+          try {
+            const [endereco] = await Location.reverseGeocodeAsync({
+              latitude,
+              longitude,
+            });
+            const rua = [endereco.street, endereco.streetNumber]
+              .filter(Boolean)
+              .join(", ");
+            const cidade = endereco.city || endereco.subregion;
+            lugar = [rua, cidade, endereco.country].filter(Boolean).join(", ");
+          } catch (erro) {
+            lugar = null;
+          }
+
+          local = { latitude, longitude, lugar };
+        } catch (erro) {
+          local = null;
+        }
+      }
+
+      adicionarFoto(resultado.uri, local);
+    } finally {
+      setOcupado(false);
+    }
   }
 
   function virarCamera() {
     setLado(lado === "back" ? "front" : "back");
+    voltas.current += 1;
+    Animated.timing(giro, {
+      toValue: voltas.current,
+      duration: 350,
+      useNativeDriver: true,
+    }).start();
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <CameraView ref={camera} facing={lado} style={styles.camera} />
+        <View style={styles.cameraBox}>
+          <CameraView ref={camera} facing={lado} style={StyleSheet.absoluteFill} />
 
-        <View style={styles.linha}>
-          <Pressable style={[styles.button, styles.botaoFlex]} onPress={tirarFoto}>
-            <Text style={styles.buttonText}>Tirar foto</Text>
+          <Animated.View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFill, styles.flash, { opacity: flash }]}
+          />
+
+          <Pressable
+            style={styles.chip}
+            disabled={permLocal?.granted}
+            onPress={() => (localNegado ? Linking.openSettings() : pedirLocal())}
+          >
+            <Ionicons
+              name={permLocal?.granted ? "location" : "location-outline"}
+              size={16}
+              color={permLocal?.granted ? "#34d399" : "#ffffff"}
+            />
+            <Text style={styles.chipTexto}>
+              {permLocal?.granted
+                ? "Local ativo"
+                : localNegado
+                ? "Localização negada · abrir configurações"
+                : "Permitir localização"}
+            </Text>
           </Pressable>
-          <Pressable style={styles.botaoIcone} onPress={virarCamera}>
-            <Ionicons name="camera-reverse-outline" size={28} color="#ffffff" />
-          </Pressable>
+
+          <View style={[styles.chip, styles.chipEstabilidade]}>
+            <Ionicons
+              name={parado ? "checkmark-circle" : "alert-circle"}
+              size={16}
+              color={parado ? "#34d399" : "#fbbf24"}
+            />
+            <Text style={styles.chipTexto}>
+              {parado ? "Celular parado" : "Segure firme"}
+            </Text>
+          </View>
+
+          <View style={styles.controles}>
+            {ultimaFoto ? (
+              <Image source={{ uri: ultimaFoto.uri }} style={styles.miniatura} />
+            ) : (
+              <View style={[styles.miniatura, styles.miniaturaVazia]} />
+            )}
+
+            <BotaoAnimado
+              style={[styles.obturador, !parado && styles.obturadorBloqueado]}
+              onPress={tirarFoto}
+              disabled={!parado}
+            >
+              <View style={[styles.obturadorMiolo, ocupado && styles.obturadorOcupado]} />
+            </BotaoAnimado>
+
+            <BotaoAnimado style={styles.botaoVidro} onPress={virarCamera}>
+              <Animated.View
+                style={{
+                  transform: [
+                    {
+                      rotate: giro.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0deg", "180deg"],
+                      }),
+                    },
+                  ],
+                }}
+              >
+                <Ionicons name="camera-reverse-outline" size={26} color="#ffffff" />
+              </Animated.View>
+            </BotaoAnimado>
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -75,14 +249,21 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 24,
-    gap: 20,
+    padding: 20,
   },
   centro: {
     flex: 1,
     padding: 24,
     justifyContent: "center",
     gap: 16,
+  },
+  iconeGrande: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#d0e2ff",
   },
   title: {
     fontSize: 28,
@@ -94,16 +275,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: "#334e68",
   },
-  camera: {
-    flex: 1,
-    borderRadius: 24,
-    overflow: "hidden",
-  },
-  linha: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
   button: {
     paddingVertical: 16,
     paddingHorizontal: 20,
@@ -111,20 +282,86 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#102542",
   },
-  botaoFlex: {
-    flex: 1,
-  },
-  botaoIcone: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#102542",
-  },
   buttonText: {
     fontSize: 16,
     fontWeight: "700",
     color: "#ffffff",
+  },
+  cameraBox: {
+    flex: 1,
+    borderRadius: 28,
+    overflow: "hidden",
+    backgroundColor: "#102542",
+  },
+  flash: {
+    backgroundColor: "#ffffff",
+  },
+  chip: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(16, 37, 66, 0.7)",
+  },
+  chipEstabilidade: {
+    top: 58,
+  },
+  chipTexto: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  controles: {
+    position: "absolute",
+    left: 20,
+    right: 20,
+    bottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  miniatura: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "#ffffff",
+  },
+  miniaturaVazia: {
+    backgroundColor: "rgba(16, 37, 66, 0.45)",
+  },
+  obturador: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  obturadorBloqueado: {
+    opacity: 0.35,
+  },
+  obturadorMiolo: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#ffffff",
+  },
+  obturadorOcupado: {
+    opacity: 0.5,
+  },
+  botaoVidro: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(16, 37, 66, 0.55)",
   },
 });

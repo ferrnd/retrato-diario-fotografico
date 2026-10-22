@@ -30,6 +30,36 @@ function textoLocal(item) {
   );
 }
 
+// bytes para KB ou MB
+function textoTamanho(bytes) {
+  if (!bytes) return "Desconhecido";
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function textoResolucao(item) {
+  if (!item.largura || !item.altura) return "Desconhecida";
+  const megapixels = (item.largura * item.altura) / 1000000;
+  return `${item.largura} × ${item.altura} (${megapixels.toFixed(1)} MP)`;
+}
+
+function textoCoordenadas(item) {
+  if (!item.local) return "Sem localização";
+  return `${item.local.latitude.toFixed(6)}, ${item.local.longitude.toFixed(6)}`;
+}
+
+function LinhaDetalhe({ icone, titulo, valor }) {
+  return (
+    <View style={styles.linhaDetalhe}>
+      <Ionicons name={icone} size={18} color="#0f62fe" />
+      <View style={styles.linhaTextos}>
+        <Text style={styles.detalheTitulo}>{titulo}</Text>
+        <Text style={styles.detalheValor}>{valor}</Text>
+      </View>
+    </View>
+  );
+}
+
 function ItemFoto({ item, index, marcada, apagando, onTocar, onSegurar }) {
   const entrada = useRef(new Animated.Value(0)).current;
   const pressao = useRef(new Animated.Value(0)).current;
@@ -421,8 +451,13 @@ export default function GaleriaScreen() {
               ]}
             >
               <Image source={{ uri: selecionada.uri }} style={styles.fotoGrande} />
-              <Text style={styles.dataGrande}>{selecionada.data}</Text>
-              <Text style={styles.dataGrande}>{textoLocal(selecionada)}</Text>
+              <View style={styles.detalhes}>
+                <LinhaDetalhe icone="calendar-outline" titulo="Data e hora" valor={selecionada.data} />
+                <LinhaDetalhe icone="location-outline" titulo="Local" valor={textoLocal(selecionada)} />
+                <LinhaDetalhe icone="navigate-outline" titulo="Coordenadas" valor={textoCoordenadas(selecionada)} />
+                <LinhaDetalhe icone="resize-outline" titulo="Resolução" valor={textoResolucao(selecionada)} />
+                <LinhaDetalhe icone="document-outline" titulo="Tamanho do arquivo" valor={textoTamanho(selecionada.tamanho)} />
+              </View>
             </Animated.View>
           )}
         </Pressable>
@@ -545,13 +580,31 @@ const styles = StyleSheet.create({
   },
   fotoGrande: {
     width: "100%",
-    aspectRatio: 3 / 4,
+    aspectRatio: 4 / 5,
     borderRadius: 20,
     backgroundColor: "#d0e2ff",
   },
-  dataGrande: {
+  detalhes: {
+    gap: 10,
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: "#ffffff",
+  },
+  linhaDetalhe: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  linhaTextos: {
+    flex: 1,
+  },
+  detalheTitulo: {
+    fontSize: 12,
+    color: "#627d98",
+  },
+  detalheValor: {
     fontSize: 14,
-    color: "#ffffff",
-    textAlign: "center",
+    fontWeight: "600",
+    color: "#102542",
   },
 });

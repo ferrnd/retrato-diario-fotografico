@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useAudioPlayer } from "expo-audio";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { File } from "expo-file-system";
 import * as Location from "expo-location";
 import { Accelerometer } from "expo-sensors";
 import { useEffect, useRef, useState } from "react";
@@ -158,7 +159,23 @@ export default function CameraScreen() {
         }
       }
 
-      adicionarFoto(resultado.uri, local);
+      // tamanho do arquivo em bytes
+      let tamanho = null;
+      try {
+        tamanho = new File(resultado.uri).size;
+      } catch (erro) {
+        tamanho = null;
+      }
+
+      adicionarFoto(
+        {
+          uri: resultado.uri,
+          largura: resultado.width,
+          altura: resultado.height,
+          tamanho,
+        },
+        local
+      );
     } finally {
       setOcupado(false);
     }

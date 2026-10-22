@@ -10,13 +10,13 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: "#f8fbff" },
-          headerTitleStyle: { fontWeight: "800", color: "#102542" },
+          headerStyle: { backgroundColor: "#9A2E22" },
+          headerTitleStyle: { fontWeight: "800", color: "#EAE4D6" },
           // status do wi-fi aparece em todas as telas
           headerRight: () => <WifiStatus />,
-          tabBarActiveTintColor: "#0f62fe",
-          tabBarInactiveTintColor: "#9fb3c8",
-          tabBarStyle: { backgroundColor: "#ffffff", borderTopColor: "#e4ecf7" },
+          tabBarActiveTintColor: "#9A2E22",
+          tabBarInactiveTintColor: "#B8A99A",
+          tabBarStyle: { backgroundColor: "#EAE4D6", borderTopColor: "#C9BFAE" },
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: "600",

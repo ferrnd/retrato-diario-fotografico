@@ -16,7 +16,7 @@ export default function WifiStatus() {
       <Ionicons
         name={comWifi ? "wifi" : "cloud-offline-outline"}
         size={16}
-        color={comWifi ? "#0f62fe" : "#627d98"}
+        color={comWifi ? "#9A2E22" : "#3B0F0B"}
       />
       <Text style={[styles.texto, !comWifi && styles.semWifi]}>
         {comWifi ? "Wi-Fi" : "Sem Wi-Fi"}
@@ -34,17 +34,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: "#d0e2ff",
+    backgroundColor: "#EAE4D6",
   },
   semWifiFundo: {
-    backgroundColor: "#e4ecf7",
+    backgroundColor: "#C9BFAE",
   },
   texto: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#0f62fe",
+    color: "#9A2E22",
   },
   semWifi: {
-    color: "#627d98",
+    color: "#3B0F0B",
   },
 });

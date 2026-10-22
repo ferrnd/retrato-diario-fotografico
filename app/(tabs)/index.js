@@ -117,7 +117,7 @@ export default function CameraScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.centro}>
           <View style={styles.iconeGrande}>
-            <Ionicons name="camera-outline" size={44} color="#0f62fe" />
+            <Ionicons name="camera-outline" size={44} color="#9A2E22" />
           </View>
           <Text style={styles.title}>Precisamos da câmera</Text>
           <Text style={styles.description}>
@@ -255,7 +255,7 @@ export default function CameraScreen() {
             <Ionicons
               name={permLocal?.granted ? "location" : "location-outline"}
               size={16}
-              color={permLocal?.granted ? "#34d399" : "#ffffff"}
+              color={permLocal?.granted ? "#34d399" : "#EAE4D6"}
             />
             <Text style={styles.chipTexto}>
               {permLocal?.granted
@@ -284,7 +284,7 @@ export default function CameraScreen() {
             <Ionicons
               name={flashLigado ? "flash" : "flash-off"}
               size={22}
-              color={flashLigado ? "#fbbf24" : "#ffffff"}
+              color={flashLigado ? "#fbbf24" : "#EAE4D6"}
             />
           </BotaoAnimado>
 
@@ -324,7 +324,7 @@ export default function CameraScreen() {
                   ],
                 }}
               >
-                <Ionicons name="camera-reverse-outline" size={26} color="#ffffff" />
+                <Ionicons name="camera-reverse-outline" size={26} color="#EAE4D6" />
               </Animated.View>
             </BotaoAnimado>
           </View>
@@ -337,7 +337,7 @@ export default function CameraScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#f8fbff",
+    backgroundColor: "#9A2E22",
   },
   container: {
     flex: 1,
@@ -355,35 +355,35 @@ const styles = StyleSheet.create({
     borderRadius: 44,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#d0e2ff",
+    backgroundColor: "#EAE4D6",
   },
   title: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#102542",
+    color: "#EAE4D6",
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#334e68",
+    color: "#EAE4D6",
   },
   button: {
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 16,
     alignItems: "center",
-    backgroundColor: "#102542",
+    backgroundColor: "#3B0F0B",
   },
   buttonText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#EAE4D6",
   },
   cameraBox: {
     flex: 1,
     borderRadius: 28,
     overflow: "hidden",
-    backgroundColor: "#102542",
+    backgroundColor: "#3B0F0B",
   },
   flash: {
     backgroundColor: "#ffffff",
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: "rgba(16, 37, 66, 0.7)",
+    backgroundColor: "rgba(59, 15, 11, 0.7)",
   },
   chipEstabilidade: {
     top: 58,
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   chipTexto: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#EAE4D6",
   },
   controles: {
     position: "absolute",
@@ -422,17 +422,17 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: "#ffffff",
+    borderColor: "#EAE4D6",
   },
   miniaturaVazia: {
-    backgroundColor: "rgba(16, 37, 66, 0.45)",
+    backgroundColor: "rgba(59, 15, 11, 0.45)",
   },
   obturador: {
     width: 76,
     height: 76,
     borderRadius: 38,
     borderWidth: 4,
-    borderColor: "#ffffff",
+    borderColor: "#EAE4D6",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#EAE4D6",
   },
   obturadorOcupado: {
     opacity: 0.5,
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: "rgba(16, 37, 66, 0.7)",
+    backgroundColor: "rgba(59, 15, 11, 0.7)",
   },
   botaoVidro: {
     width: 52,
@@ -468,6 +468,6 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(16, 37, 66, 0.55)",
+    backgroundColor: "rgba(59, 15, 11, 0.55)",
   },
 });

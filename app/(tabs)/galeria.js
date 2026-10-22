@@ -45,7 +45,7 @@ function textoCoordenadas(item) {
 function LinhaDetalhe({ icone, titulo, valor }) {
   return (
     <View style={styles.linhaDetalhe}>
-      <Ionicons name={icone} size={18} color="#0f62fe" />
+      <Ionicons name={icone} size={18} color="#9A2E22" />
       <View style={styles.linhaTextos}>
         <Text style={styles.detalheTitulo}>{titulo}</Text>
         <Text style={styles.detalheValor}>{valor}</Text>
@@ -191,13 +191,13 @@ function ItemFoto({ item, index, marcada, apagando, onTocar, onSegurar }) {
       </Pressable>
 
       <View style={styles.info}>
-        <Ionicons name="calendar-outline" size={13} color="#627d98" />
+        <Ionicons name="calendar-outline" size={13} color="#9A2E22" />
         <Text style={styles.infoTexto} numberOfLines={1}>
           {item.data}
         </Text>
       </View>
       <View style={styles.info}>
-        <Ionicons name="location-outline" size={13} color="#627d98" />
+        <Ionicons name="location-outline" size={13} color="#9A2E22" />
         <Text style={styles.infoTexto} numberOfLines={1}>
           {textoLocal(item)}
         </Text>
@@ -242,7 +242,7 @@ function BarraSelecao({ visivel, quantidade, onCancelar, onApagar }) {
     >
       <View style={styles.barra}>
         <BotaoAnimado onPress={onCancelar}>
-          <Ionicons name="close" size={26} color="#102542" />
+          <Ionicons name="close" size={26} color="#3B0F0B" />
         </BotaoAnimado>
 
         <Animated.Text style={[styles.barraTexto, { transform: [{ scale: pulo }] }]}>
@@ -253,7 +253,7 @@ function BarraSelecao({ visivel, quantidade, onCancelar, onApagar }) {
           style={{ transform: [{ scale: anim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }] }}
         >
           <BotaoAnimado onPress={onApagar}>
-            <Ionicons name="trash" size={26} color="#d92d20" />
+            <Ionicons name="trash" size={26} color="#9A2E22" />
           </BotaoAnimado>
         </Animated.View>
       </View>
@@ -288,7 +288,7 @@ function Vazio() {
       <Animated.View
         style={{ transform: [{ translateY: flutuar.interpolate({ inputRange: [0, 1], outputRange: [0, -8] }) }] }}
       >
-        <Ionicons name="images-outline" size={64} color="#9fb3c8" />
+        <Ionicons name="images-outline" size={64} color="#EAE4D6" />
       </Animated.View>
       <Text style={styles.vazio}>Nenhuma foto ainda.{"\n"}Tire uma na aba Câmera.</Text>
     </Animated.View>
@@ -411,7 +411,7 @@ export default function GaleriaScreen() {
           <Ionicons
             name={comWifi ? "cloud-upload-outline" : "cloud-offline-outline"}
             size={22}
-            color="#ffffff"
+            color="#EAE4D6"
           />
           <Text style={styles.buttonText}>
             {comWifi ? "Enviar para a nuvem" : "Conecte ao Wi-Fi para enviar"}
@@ -462,11 +462,11 @@ export default function GaleriaScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#f8fbff",
+    backgroundColor: "#9A2E22",
   },
   barraBox: {
     overflow: "hidden",
-    backgroundColor: "#d0e2ff",
+    backgroundColor: "#EAE4D6",
   },
   barra: {
     height: 56,
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   barraTexto: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#102542",
+    color: "#3B0F0B",
   },
   lista: {
     padding: 20,
@@ -493,8 +493,8 @@ const styles = StyleSheet.create({
     padding: 8,
     gap: 6,
     borderRadius: 20,
-    backgroundColor: "#ffffff",
-    shadowColor: "#102542",
+    backgroundColor: "#EAE4D6",
+    shadowColor: "#3B0F0B",
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -504,17 +504,17 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 3 / 4,
     borderRadius: 14,
-    backgroundColor: "#d0e2ff",
+    backgroundColor: "#C9BFAE",
   },
   escurecer: {
     borderRadius: 14,
-    backgroundColor: "#102542",
+    backgroundColor: "#3B0F0B",
   },
   realce: {
     borderRadius: 14,
     borderWidth: 3,
-    borderColor: "#0f62fe",
-    backgroundColor: "rgba(15, 98, 254, 0.18)",
+    borderColor: "#9A2E22",
+    backgroundColor: "rgba(154, 46, 34, 0.18)",
   },
   info: {
     flexDirection: "row",
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   infoTexto: {
     flex: 1,
     fontSize: 12,
-    color: "#334e68",
+    color: "#3B0F0B",
   },
   vazioBox: {
     flex: 1,
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   vazio: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#627d98",
+    color: "#EAE4D6",
     textAlign: "center",
   },
   rodape: {
@@ -551,21 +551,21 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 16,
-    backgroundColor: "#102542",
+    backgroundColor: "#3B0F0B",
   },
   desabilitado: {
-    backgroundColor: "#9fb3c8",
+    backgroundColor: "rgba(59, 15, 11, 0.4)",
   },
   buttonText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#ffffff",
+    color: "#EAE4D6",
   },
   fundo: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(16, 37, 66, 0.88)",
+    backgroundColor: "rgba(59, 15, 11, 0.9)",
   },
   ampliada: {
     width: "88%",
@@ -575,13 +575,13 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 4 / 5,
     borderRadius: 20,
-    backgroundColor: "#d0e2ff",
+    backgroundColor: "#C9BFAE",
   },
   detalhes: {
     gap: 10,
     padding: 14,
     borderRadius: 20,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#EAE4D6",
   },
   linhaDetalhe: {
     flexDirection: "row",
@@ -593,11 +593,11 @@ const styles = StyleSheet.create({
   },
   detalheTitulo: {
     fontSize: 12,
-    color: "#627d98",
+    color: "#9A2E22",
   },
   detalheValor: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#102542",
+    color: "#3B0F0B",
   },
 });

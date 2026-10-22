@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import BotaoAnimado from "../../components/BotaoAnimado";
 import { useFotos } from "../../contexts/FotosContext";
 
+// abaixo disso consideramos o celular parado
 const LIMITE_MOVIMENTO = 0.08;
 
 export default function CameraScreen() {
@@ -35,24 +36,27 @@ export default function CameraScreen() {
   const somObturador = useAudioPlayer(require("../../assets/obturador.mp3"));
 
   useEffect(() => {
-    let anterior = null; 
-    let suave = 0; 
+    let anterior = null;
+    let suave = 0;
     let estado = true;
 
+    // lê o acelerômetro a cada 100ms
     Accelerometer.setUpdateInterval(100);
 
     const assinatura = Accelerometer.addListener(({ x, y, z }) => {
       if (anterior) {
-
+        // quanto mudou desde a última leitura
         const mudanca =
           Math.abs(x - anterior.x) +
           Math.abs(y - anterior.y) +
           Math.abs(z - anterior.z);
 
+        // média pra não ficar piscando com qualquer tremidinha
         suave = suave * 0.6 + mudanca * 0.4;
 
         const novoEstado = suave < LIMITE_MOVIMENTO;
 
+        // só atualiza o estado quando muda, pra não renderizar toda hora
         if (novoEstado !== estado) {
           estado = novoEstado;
           setParado(novoEstado);
@@ -64,12 +68,15 @@ export default function CameraScreen() {
     return () => assinatura.remove();
   }, []);
 
+  // negou e marcou pra não perguntar de novo
   const localNegado = permLocal && !permLocal.granted && !permLocal.canAskAgain;
 
+  // permissão ainda carregando
   if (!permissao) {
     return <SafeAreaView style={styles.safeArea} />;
   }
 
+  // sem permissão: pede de novo ou manda pras configurações
   if (!permissao.granted) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -99,10 +106,11 @@ export default function CameraScreen() {
   }
 
   async function tirarFoto() {
-
+    // não tira se já estiver tirando ou se o celular estiver mexendo
     if (ocupado || !parado) return;
     setOcupado(true);
 
+    // volta o som pro início antes de tocar
     somObturador.seekTo(0);
     somObturador.play();
 
@@ -112,11 +120,12 @@ export default function CameraScreen() {
     ]).start();
 
     try {
-
+      // desliga o som do sistema, já usamos o nosso
       const resultado = await camera.current.takePictureAsync({
         shutterSound: false,
       });
 
+      // geotag: só pega o local se a permissão foi dada
       let local = null;
       if (permLocal?.granted) {
         try {
@@ -126,6 +135,7 @@ export default function CameraScreen() {
           const latitude = posicao.coords.latitude;
           const longitude = posicao.coords.longitude;
 
+          // tenta transformar as coordenadas em endereço
           let lugar = null;
           try {
             const [endereco] = await Location.reverseGeocodeAsync({
@@ -138,6 +148,7 @@ export default function CameraScreen() {
             const cidade = endereco.city || endereco.subregion;
             lugar = [rua, cidade, endereco.country].filter(Boolean).join(", ");
           } catch (erro) {
+            // sem internet não tem endereço, fica só com as coordenadas
             lugar = null;
           }
 

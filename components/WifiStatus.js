@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { NetworkStateType, useNetworkState } from "expo-network";
 import { StyleSheet, Text, View } from "react-native";
 
+// true só se estiver no wi-fi (dados móveis não conta)
 export function useWifi() {
   const rede = useNetworkState();
   return rede.type === NetworkStateType.WIFI && rede.isConnected === true;

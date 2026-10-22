@@ -24,6 +24,7 @@ export default function BotaoAnimado({
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={disabled}
+      // diminui um pouco ao apertar e volta ao soltar
       onPressIn={() => animar(0.94)}
       onPressOut={() => animar(1)}
     >

@@ -21,6 +21,7 @@ import { useFotos } from "../../contexts/FotosContext";
 const DURACAO_SAIDA = 300;
 const DURACAO_SEGURAR = 450;
 
+// mostra o endereço, ou as coordenadas se não tiver
 function textoLocal(item) {
   if (!item.local) return "Sem local";
   return (
@@ -57,7 +58,8 @@ function ItemFoto({ item, index, marcada, apagando, onTocar, onSegurar }) {
 
   useEffect(() => {
     if (marcada) {
-      const meio = 140 + (index % 3) * 20; 
+      // tempo diferente em cada foto pra não tremerem todas juntas
+      const meio = 140 + (index % 3) * 20;
       loopTremor.current = Animated.loop(
         Animated.sequence([
           Animated.timing(tremor, { toValue: 1, duration: meio, useNativeDriver: true }),
@@ -191,7 +193,7 @@ function BarraSelecao({ visivel, quantidade, onCancelar, onApagar }) {
       toValue: visivel ? 1 : 0,
       duration: 240,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: false, 
+      useNativeDriver: false, // height não funciona com native driver
     }).start();
   }, [visivel]);
 
@@ -326,6 +328,7 @@ export default function GaleriaScreen() {
   function apagarMarcadas() {
     if (apagando) return;
     setApagando(true);
+    // espera a animação de saída antes de remover
     timer.current = setTimeout(() => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       removerFotos(marcadas);
@@ -338,10 +341,12 @@ export default function GaleriaScreen() {
     if (!apagando) setMarcadas([]);
   }
 
+  // envio simulado, não manda pra lugar nenhum
   function enviarParaNuvem() {
     Alert.alert("Enviado", `${fotos.length} foto(s) enviada(s) para a nuvem (simulado).`);
   }
 
+  // só envia com wi-fi e com pelo menos uma foto
   const podeEnviar = comWifi && fotos.length > 0;
 
   return (

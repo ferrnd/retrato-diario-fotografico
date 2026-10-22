@@ -2,11 +2,13 @@ import { createContext, useContext, useState } from "react";
 
 const FotosContext = createContext();
 
+// guarda as fotos na memória (somem ao fechar o app)
 export function FotosProvider({ children }) {
   const [fotos, setFotos] = useState([]);
 
   function adicionarFoto(uri, local) {
     setFotos((atuais) => [
+      // foto nova vai pro começo da lista
       { uri, local, data: new Date().toLocaleString("pt-BR") },
       ...atuais,
     ]);

@@ -58,9 +58,7 @@ function ItemFoto({ item, index, marcada, apagando, onTocar, onSegurar }) {
   const entrada = useRef(new Animated.Value(0)).current;
   const pressao = useRef(new Animated.Value(0)).current;
   const selecao = useRef(new Animated.Value(0)).current;
-  const tremor = useRef(new Animated.Value(0)).current;
   const saida = useRef(new Animated.Value(0)).current;
-  const loopTremor = useRef(null);
 
   useEffect(() => {
     Animated.timing(entrada, {
@@ -78,25 +76,6 @@ function ItemFoto({ item, index, marcada, apagando, onTocar, onSegurar }) {
       tension: 160,
       useNativeDriver: true,
     }).start();
-  }, [marcada]);
-
-  useEffect(() => {
-    if (marcada) {
-      // tempo diferente em cada foto pra não tremerem todas juntas
-      const meio = 140 + (index % 3) * 20;
-      loopTremor.current = Animated.loop(
-        Animated.sequence([
-          Animated.timing(tremor, { toValue: 1, duration: meio, useNativeDriver: true }),
-          Animated.timing(tremor, { toValue: -1, duration: meio * 2, useNativeDriver: true }),
-          Animated.timing(tremor, { toValue: 0, duration: meio, useNativeDriver: true }),
-        ])
-      );
-      loopTremor.current.start();
-    } else {
-      loopTremor.current?.stop();
-      Animated.spring(tremor, { toValue: 0, useNativeDriver: true }).start();
-    }
-    return () => loopTremor.current?.stop();
   }, [marcada]);
 
   useEffect(() => {
@@ -141,10 +120,7 @@ function ItemFoto({ item, index, marcada, apagando, onTocar, onSegurar }) {
           opacity: opacidadeCard,
           transform: [
             { translateY: entrada.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) },
-            { translateY: saida.interpolate({ inputRange: [0, 1], outputRange: [0, 12] }) },
             { scale: saida.interpolate({ inputRange: [0, 1], outputRange: [1, 0.6] }) },
-            { rotate: tremor.interpolate({ inputRange: [-1, 1], outputRange: ["-0.6deg", "0.6deg"] }) },
-            { rotate: saida.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "8deg"] }) },
           ],
         },
       ]}
